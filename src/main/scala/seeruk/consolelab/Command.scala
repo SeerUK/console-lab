@@ -18,12 +18,12 @@ import seeruk.consolelab.input.InputReader
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-class ExampleCommand(implicit val rdr: InputReader) extends Command with Parameters {
+class ExampleCommand(val rdr: InputReader) extends Command with Parameters {
   override val name = "Example"
 
   private lazy val source = rdr.stringArg("source")
   private lazy val dest = rdr.stringArg("destination")
-  private lazy val clean = rdr.boolOpt("clean")
+  private lazy val clean = !rdr.boolOpt("no-clean")
 
   def run(dialog: Dialog, output: Output): Unit = {
     println(source)

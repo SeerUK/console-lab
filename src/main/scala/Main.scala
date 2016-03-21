@@ -10,7 +10,7 @@
  */
 
 import seeruk.consolelab.{Dialog, ExampleCommand, Output}
-import seeruk.consolelab.input.InputReader
+import seeruk.consolelab.input.{InputParser, InputReader}
 
 /**
  * Main
@@ -18,9 +18,10 @@ import seeruk.consolelab.input.InputReader
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 object Main extends App {
-  implicit val reader = new InputReader()
+  val parser = new InputParser()
+  val reader = new InputReader(parser.parse(args.toList))
 
-  val command = new ExampleCommand()
+  val command = new ExampleCommand(reader)
 
   command.run(new Dialog(), new Output())
 }
