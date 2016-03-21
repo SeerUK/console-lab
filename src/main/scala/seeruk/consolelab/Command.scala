@@ -1,5 +1,5 @@
 /**
- * This file is part of the "console-lab" project.
+ * This file is part of the "SeerUK/console-lab" project.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the LICENSE is distributed on an "AS IS" BASIS,

@@ -1,5 +1,5 @@
 /**
- * This file is part of the "console-lab" project.
+ * This file is part of the "SeerUK/console-lab" project.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the LICENSE is distributed on an "AS IS" BASIS,
@@ -17,8 +17,8 @@ package seeruk.consolelab.input
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 trait InputParameter {
-  val name: String
+  val token: String
 }
 
-case class InputArgument(name: String, value: String) extends InputParameter
-case class InputOption(name: String, value: Option[String]) extends InputParameter
+case class InputArgument(token: String) extends InputParameter
+case class InputOption(token: String, value: Option[String]) extends InputParameter

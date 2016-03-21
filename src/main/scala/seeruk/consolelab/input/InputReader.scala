@@ -1,5 +1,5 @@
 /**
- * This file is part of the "console-lab" project.
+ * This file is part of the "SeerUK/console-lab" project.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the LICENSE is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@ package seeruk.consolelab.input
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-class InputReader {
+class InputReader(input: List[InputParameter]) {
   def stringArg(name: String, default: Option[String] = None, desc: Option[String] = None): String = {
     name
   }
