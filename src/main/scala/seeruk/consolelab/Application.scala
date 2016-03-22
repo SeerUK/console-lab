@@ -21,13 +21,16 @@ import seeruk.consolelab.input.{Input, InputArgument}
 case class Application(input: Input, commands: List[Command[_]] = List()) {
   def run(): Int = {
     val maybeCommand = for {
-      commandArg <- input.input.collect({ case arg: InputArgument => arg }).headOption
+      commandArg <- input.arguments.headOption
       command <- commands.find(_.name == commandArg.token)
     } yield command
 
     maybeCommand match {
       case Some(command) =>
-        command.run(new Output(), new Dialog())
+        // Drop the first argument (the command name)
+        val commandInput = new Input(input.arguments.drop(1) ++ input.options)
+
+        command.run(commandInput, new Output(), new Dialog())
       case _ => 1
     }
   }

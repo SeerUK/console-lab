@@ -11,25 +11,34 @@
 
 package seeruk.consolelab
 
-import seeruk.consolelab.input.{Input, InputReader, ValueReader}
+import seeruk.consolelab.input.{Input, InputArgumentReader, InputOptionReader, ValueReader}
 
 sealed trait InputParameterDefinition[T] {
-  val input: Input
   val name: String
   val default: T
   val description: Option[String]
 
-  def resolve(): T
+  def resolve()(implicit input: Input): T
 }
 
-final class InputOptionDefinition[T: InputReader: ValueReader](
-    override val input: Input,
+final class InputArgumentDefinition[T: InputArgumentReader: ValueReader](
     override val name: String,
     override val default: T,
     override val description: Option[String])
   extends InputParameterDefinition[T] {
 
-  override def resolve(): T = {
-    input.read[T](name, default)
+  override def resolve()(implicit input: Input): T = {
+    input.readArgument[T](name, default)
+  }
+}
+
+final class InputOptionDefinition[T: InputOptionReader: ValueReader](
+    override val name: String,
+    override val default: T,
+    override val description: Option[String])
+  extends InputParameterDefinition[T] {
+
+  override def resolve()(implicit input: Input): T = {
+    input.readOption[T](name, default)
   }
 }

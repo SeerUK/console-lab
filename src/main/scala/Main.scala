@@ -19,5 +19,5 @@ import seeruk.consolelab.ApplicationModule
 object Main extends App {
   val appModule = new ApplicationModule(args)
 
-  println(appModule.application.run())
+  println("Application run finished with status %d".format(appModule.application.run()))
 }

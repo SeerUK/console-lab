@@ -16,8 +16,15 @@ package seeruk.consolelab.input
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-class Input(val input: List[InputParameter]) {
-  def read[A: InputReader](name: String, default: A): A = {
-    implicitly[InputReader[A]].read(name, default, input)
+class Input(val parameters: List[InputParameter]) {
+  lazy val arguments = parameters.collect { case opt: InputArgument => opt }
+  lazy val options = parameters.collect { case opt: InputOption => opt }
+
+  def readArgument[A: InputArgumentReader](name: String, default: A): A = {
+    implicitly[InputArgumentReader[A]].read(name, default, arguments)
+  }
+
+  def readOption[A: InputOptionReader](name: String, default: A): A = {
+    implicitly[InputOptionReader[A]].read(name, default, options)
   }
 }
