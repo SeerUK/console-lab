@@ -9,15 +9,22 @@
  * file that was distributed with this source code.
  */
 
-import seeruk.consolelab.ApplicationModule
+package seeruk.consolelab
+
+import seeruk.consolelab.input.{Input, InputParser}
 
 /**
- * Main
+ * ApplicationModule
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-object Main extends App {
-  val appModule = new ApplicationModule(args)
+class ApplicationModule(args: Array[String]) {
+  lazy val application = new Application(input)
+    .withCommand(exampleCommand)
 
-  println(appModule.application.run())
+  lazy val exampleCommand = new ExampleCommand(input)
+
+  lazy val input = new Input(parser.parse(args.toList))
+
+  lazy val parser = new InputParser()
 }

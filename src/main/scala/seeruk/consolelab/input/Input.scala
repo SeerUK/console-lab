@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-import seeruk.consolelab.ApplicationModule
+package seeruk.consolelab.input
 
 /**
- * Main
+ * Input
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-object Main extends App {
-  val appModule = new ApplicationModule(args)
-
-  println(appModule.application.run())
+class Input(val input: List[InputParameter]) {
+  def read[A: InputReader](name: String, default: A): A = {
+    implicitly[InputReader[A]].read(name, default, input)
+  }
 }
