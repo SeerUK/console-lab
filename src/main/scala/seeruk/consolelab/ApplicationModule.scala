@@ -22,9 +22,8 @@ class ApplicationModule(args: Array[String]) {
   lazy val application = new Application(input)
     .withCommand(exampleCommand)
 
-  lazy val exampleCommand = new ExampleCommand()
+  lazy val exampleCommand = new ExampleCommand(input)
 
-  lazy val input = new Input(parser.parse(args.toList))
-
-  lazy val parser = new InputParser()
+  lazy val input = new Input(inputParser.parse(args.toList))
+  lazy val inputParser = new InputParser()
 }

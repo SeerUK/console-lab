@@ -11,26 +11,37 @@
 
 package seeruk.consolelab
 
-import seeruk.consolelab.input.{Input, InputArgument}
+import seeruk.consolelab.input.Input
 
 /**
  * Application
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-case class Application(input: Input, commands: List[Command[_]] = List()) {
+case class Application(
+    input: Input,
+    commands: List[Command[_]] = List()) {
+
+  val commandName = input.arg[String]("command_name", "list", Some("The command to run"))
+  val help = input.opt[Boolean]("help", false, Some("Displays command help"))
+  val plain = input.opt[Boolean]("plain", false, Some("Don't style output"))
+  val quiet = input.opt[Boolean]("quiet", false, Some("Decreases the verbosity of output"))
+  val verbosity = input.opt[Int]("verbosity", 0, Some("Increases the verbosity of output"))
+  val version = input.opt[Boolean]("version", false, Some("Displays the application version"))
+
   def run(): Int = {
-    val maybeCommand = for {
-      commandArg <- input.arguments.headOption
-      command <- commands.find(_.name == commandArg.token)
-    } yield command
+    val maybeCommand = commands.find(_.name == commandName.resolve())
+    val cmdName = commandName.resolve()
+
+    println("Help? " + help.resolve())
+    println("Plain? " + plain.resolve())
+    println("Quiet? " + quiet.resolve())
+    println("Verbosity? " + verbosity.resolve())
+    println("Version? " + version.resolve())
 
     maybeCommand match {
       case Some(command) =>
-        // Drop the first argument (the command name)
-        val commandInput = new Input(input.arguments.drop(1) ++ input.options)
-
-        command.run(commandInput, new Output(), new Dialog())
+        command.run(new Output(), new Dialog())
       case _ => 1
     }
   }

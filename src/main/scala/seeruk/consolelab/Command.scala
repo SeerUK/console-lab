@@ -11,22 +11,21 @@
 
 package seeruk.consolelab
 
-import scala.collection.mutable
-import seeruk.consolelab.input.{Input, InputArgumentReader, InputOptionReader, ValueReader}
+import seeruk.consolelab.input._
 
 /**
  * Example Command
  *
  * @author Elliot Wright <elliot@elliotwright.co>
  */
-class ExampleCommand extends AmbiguousCommand with InputParameters {
+class ExampleCommand(val input: Input) extends AmbiguousCommand {
   override val name = "example"
 
-  private val source = arg[String]("source", "", desc = Some("Source to clone from"))
-  private val dest = arg[String]("dest", ".", desc = Some("Destination to clone to"))
-  private val noClean = opt[Boolean]("no-clean", default = false, Some("Don't clean VCS files"))
+  private val source = input.arg[String]("source", "", desc = Some("Source to clone from"))
+  private val dest = input.arg[String]("dest", ".", desc = Some("Destination to clone to"))
+  private val noClean = input.opt[Boolean]("no-clean", default = false, Some("Don't clean VCS files"))
 
-  override def execute(output: Output, dialog: Dialog)(implicit input: Input): Unit = {
+  override def execute(output: Output, dialog: Dialog): Unit = {
     val clean = !noClean.resolve()
 
     println("Source: " + source.resolve())
@@ -36,51 +35,26 @@ class ExampleCommand extends AmbiguousCommand with InputParameters {
 }
 
 abstract class AmbiguousCommand extends Command[Unit] {
-  override def execute(output: Output, dialog: Dialog)(implicit input: Input): Unit
+  override def execute(output: Output, dialog: Dialog): Unit
 
-  final override def run(input: Input, output: Output, dialog: Dialog): Int = {
-    execute(output, dialog)(input)
+  final override def run(output: Output, dialog: Dialog): Int = {
+    execute(output, dialog)
 
     0
   }
 }
 
 abstract class UnambiguousCommand extends Command[Int] {
-  override def execute(output: Output, dialog: Dialog)(implicit input: Input): Int
+  override def execute(output: Output, dialog: Dialog): Int
 
-  final override def run(input: Input, output: Output, dialog: Dialog): Int = {
-    execute(output, dialog)(input)
+  final override def run(output: Output, dialog: Dialog): Int = {
+    execute(output, dialog)
   }
 }
 
 sealed trait Command[R] {
   val name: String
 
-  def execute(output: Output, dialog: Dialog)(implicit input: Input): R
-
-  def run(input: Input, output: Output, dialog: Dialog): Int
-}
-
-trait InputParameters {
-  private val _parameters: mutable.MutableList[InputParameterDefinition[_]] = mutable.MutableList()
-
-  def parameters: List[InputParameterDefinition[_]] = {
-    _parameters.toList
-  }
-
-  protected def arg[T: InputArgumentReader: ValueReader](name: String, default: T, desc: Option[String] = None): InputArgumentDefinition[T] = {
-    val arg = new InputArgumentDefinition[T](name, default, desc)
-
-    _parameters += arg
-
-    arg
-  }
-
-  protected def opt[T: InputOptionReader: ValueReader](name: String, default: T, desc: Option[String] = None): InputOptionDefinition[T] = {
-    val opt = new InputOptionDefinition[T](name, default, desc)
-
-    _parameters += opt
-
-    opt
-  }
+  def execute(output: Output, dialog: Dialog): R
+  def run(output: Output, dialog: Dialog): Int
 }

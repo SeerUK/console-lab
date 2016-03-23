@@ -17,28 +17,46 @@ sealed trait InputParameterDefinition[T] {
   val name: String
   val default: T
   val description: Option[String]
+  val input: Input
 
-  def resolve()(implicit input: Input): T
+  def resolve(): T
 }
 
 final class InputArgumentDefinition[T: InputArgumentReader: ValueReader](
+    override val input: Input,
     override val name: String,
     override val default: T,
-    override val description: Option[String])
+    override val description: Option[String],
+    val index: Int)
   extends InputParameterDefinition[T] {
 
-  override def resolve()(implicit input: Input): T = {
-    input.readArgument[T](name, default)
+  private var resolved: Option[T] = None
+
+  override def resolve(): T = {
+    resolved match {
+      case Some(value) => value
+      case _ =>
+        resolved = Some(input.readArgument[T](name, default, index))
+        resolve()
+    }
   }
 }
 
 final class InputOptionDefinition[T: InputOptionReader: ValueReader](
+    override val input: Input,
     override val name: String,
     override val default: T,
     override val description: Option[String])
   extends InputParameterDefinition[T] {
 
-  override def resolve()(implicit input: Input): T = {
-    input.readOption[T](name, default)
+  private var resolved: Option[T] = None
+
+  override def resolve(): T = {
+    resolved match {
+      case Some(value) => value
+      case _ =>
+        resolved = Some(input.readOption[T](name, default))
+        resolve()
+    }
   }
 }

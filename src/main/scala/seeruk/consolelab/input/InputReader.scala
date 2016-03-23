@@ -12,7 +12,7 @@
 package seeruk.consolelab.input
 
 sealed trait InputArgumentReader[A] { self =>
-  def read: (String, A, List[InputArgument]) => A
+  def read: (String, A, List[InputArgument], Int) => A
 }
 
 sealed trait InputOptionReader[A] { self =>
@@ -20,65 +20,59 @@ sealed trait InputOptionReader[A] { self =>
 }
 
 object InputArgumentReader {
-  private var idx = 0
+  type ReaderFunc[A] = (String, A, List[InputArgument], Int) => A
 
-  def read[A: ValueReader](f: (String, A, List[InputArgument]) => A): InputArgumentReader[A] = new InputArgumentReader[A] {
+  def read[A: ValueReader](f: (String, A, List[InputArgument], Int) => A): InputArgumentReader[A] = new InputArgumentReader[A] {
     val read = f
   }
 
-  implicit val readString: InputArgumentReader[String] =
-    read((name: String, default: String, input: List[InputArgument]) => {
-      val reader = implicitly[ValueReader[String]]
-      val maybeArg = input.lift(idx)
+  implicit val readBool: InputArgumentReader[Boolean] = read[Boolean](reader())
+  implicit val readDouble: InputArgumentReader[Double] = read[Double](reader())
+  implicit val readInt: InputArgumentReader[Int] = read[Int](reader())
+  implicit val readString: InputArgumentReader[String] = read[String](reader())
 
-      idx = idx + 1
+  private def reader[A: ValueReader](): ReaderFunc[A] = {
+    (name: String, default: A, input: List[InputArgument], index: Int) => {
+      val reader = implicitly[ValueReader[A]]
+      val maybeArg = input.lift(index)
 
       maybeArg match {
         case Some(argument) => reader.read(argument.token)
         case _ => default
       }
-    })
-
-  implicit val readBool: InputArgumentReader[Boolean] =
-    read((name: String, default: Boolean, input: List[InputArgument]) => {
-      val reader = implicitly[ValueReader[Boolean]]
-
-      reader.read("false")
-    })
+    }
+  }
 }
 
 object InputOptionReader {
+  type ReaderFunc[A] = (String, A, List[InputOption]) => A
+
   def read[A: ValueReader](f: (String, A, List[InputOption]) => A): InputOptionReader[A] = new InputOptionReader[A] {
     val read = f
   }
 
-  implicit val readString: InputOptionReader[String] =
-    read((name: String, default: String, input: List[InputOption]) => {
-      val reader = implicitly[ValueReader[String]]
+  implicit val readBool: InputOptionReader[Boolean] = read[Boolean](reader(emptyVal = Some(true)))
+  implicit val readDouble: InputOptionReader[Double] = read[Double](reader())
+  implicit val readInt: InputOptionReader[Int] = read[Int](reader())
+  implicit val readString: InputOptionReader[String] = read[String](reader())
 
-      input
-        .find(_.token == name) match {
-          case Some(option) => option.value match {
-            case Some(value) => reader.read(value)
-            case _ => default
+  private def reader[A: ValueReader](emptyVal: Option[A] = None): ReaderFunc[A] = {
+    (name: String, default: A, input: List[InputOption]) => {
+      val reader = implicitly[ValueReader[A]]
+      val maybeOpt = input.find(_.token == name)
+
+      maybeOpt match {
+        case Some(option) => option.value match { // Option present in input
+          case Some(value) => reader.read(value) // Actual option value (i.e. --foo=value)
+          case _ => emptyVal match { // No value present
+            case Some(value) => value // Defined empty value
+            case _ => default // No empty value defined, use default
           }
-          case _ => default
         }
-    })
-
-  implicit val readBool: InputOptionReader[Boolean] =
-    read((name: String, default: Boolean, input: List[InputOption]) => {
-      val reader = implicitly[ValueReader[Boolean]]
-
-      input
-        .find(_.token == name) match {
-          case Some(option) => option.value match {
-            case Some(value) => reader.read(value)
-            case _ => true // Boolean options without values (i.e. flags), are true if present
-          }
-          case _ => default
-        }
-    })
+        case _ => default // Option not present in input
+      }
+    }
+  }
 }
 
 sealed trait ValueReader[A] { self =>
