@@ -17,13 +17,11 @@ sealed trait InputParameterDefinition[T] {
   val name: String
   val default: T
   val description: Option[String]
-  val input: Input
 
-  def resolve(): T
+  def resolve(input: Input): T
 }
 
 final class InputArgumentDefinition[T: InputArgumentReader: ValueReader](
-    override val input: Input,
     override val name: String,
     override val default: T,
     override val description: Option[String],
@@ -32,18 +30,17 @@ final class InputArgumentDefinition[T: InputArgumentReader: ValueReader](
 
   private var resolved: Option[T] = None
 
-  override def resolve(): T = {
+  override def resolve(input: Input): T = {
     resolved match {
       case Some(value) => value
       case _ =>
         resolved = Some(input.readArgument[T](name, default, index))
-        resolve()
+        resolve(input)
     }
   }
 }
 
 final class InputOptionDefinition[T: InputOptionReader: ValueReader](
-    override val input: Input,
     override val name: String,
     override val default: T,
     override val description: Option[String])
@@ -51,12 +48,12 @@ final class InputOptionDefinition[T: InputOptionReader: ValueReader](
 
   private var resolved: Option[T] = None
 
-  override def resolve(): T = {
+  override def resolve(input: Input): T = {
     resolved match {
       case Some(value) => value
       case _ =>
         resolved = Some(input.readOption[T](name, default))
-        resolve()
+        resolve(input)
     }
   }
 }

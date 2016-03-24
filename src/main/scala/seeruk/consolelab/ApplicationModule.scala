@@ -11,7 +11,7 @@
 
 package seeruk.consolelab
 
-import seeruk.consolelab.input.{Input, InputParser}
+import seeruk.consolelab.input.{Input, InputDefinition, InputParser}
 
 /**
  * ApplicationModule
@@ -19,11 +19,12 @@ import seeruk.consolelab.input.{Input, InputParser}
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 class ApplicationModule(args: Array[String]) {
-  lazy val application = new Application(input)
+  lazy val application = new Application(inputDefinition, input)
     .withCommand(exampleCommand)
 
-  lazy val exampleCommand = new ExampleCommand(input)
+  lazy val exampleCommand = new ExampleCommand(inputDefinition)
 
   lazy val input = new Input(inputParser.parse(args.toList))
+  lazy val inputDefinition = new InputDefinition()
   lazy val inputParser = new InputParser()
 }

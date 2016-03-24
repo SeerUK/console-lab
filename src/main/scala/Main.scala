@@ -10,6 +10,7 @@
  */
 
 import seeruk.consolelab.ApplicationModule
+import seeruk.flux.{CounterActions, CounterReducer, CounterState, CounterStore}
 
 /**
  * Main
@@ -17,7 +18,19 @@ import seeruk.consolelab.ApplicationModule
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 object Main extends App {
-  val appModule = new ApplicationModule(args)
+  val reducer = new CounterReducer()
+  val state = new CounterState(0)
+  val store = new CounterStore(List(reducer), state)
 
-  println("Application run finished with status %d".format(appModule.application.run()))
+  store.dispatch(CounterActions.increaseCounter(1))
+  store.dispatch(CounterActions.decreaseCounter(5))
+  store.dispatch(CounterActions.resetCounter())
+  store.dispatch(CounterActions.increaseCounter(23))
+
+  println(store.state.value)
+
+
+//  val appModule = new ApplicationModule(args)
+//
+//  println("Application run finished with status %d".format(appModule.application.run()))
 }

@@ -11,7 +11,7 @@
 
 package seeruk.consolelab
 
-import seeruk.consolelab.input.Input
+import seeruk.consolelab.input.{Input, InputDefinition}
 
 /**
  * Application
@@ -19,38 +19,28 @@ import seeruk.consolelab.input.Input
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 case class Application(
+    definition: InputDefinition,
     input: Input,
-    commands: List[Command[_]] = List()) {
+    commands: List[Command[_, _]] = List()) {
 
-  val commandName = input.arg[String]("command_name", "list", Some("The command to run"))
-  val help = input.opt[Boolean]("help", false, Some("Displays command help"))
-  val plain = input.opt[Boolean]("plain", false, Some("Don't style output"))
-  val quiet = input.opt[Boolean]("quiet", false, Some("Decreases the verbosity of output"))
-  val verbosity = input.opt[Int]("verbosity", 0, Some("Increases the verbosity of output"))
-  val version = input.opt[Boolean]("version", false, Some("Displays the application version"))
+  val (definition1, commandName) = definition.mkArg[String]("command_name", "list", Some("The command to run"))
+  val (definition2, help) = definition1.mkOpt[Boolean]("help", false, Some("Displays command usage"))
 
   def run(): Int = {
-    val maybeCommand = commands.find(_.name == commandName.resolve())
-    val cmdName = commandName.resolve()
-
-    println("Help? " + help.resolve())
-    println("Plain? " + plain.resolve())
-    println("Quiet? " + quiet.resolve())
-    println("Verbosity? " + verbosity.resolve())
-    println("Version? " + version.resolve())
+    val maybeCommand = commands.find(_.name == commandName.resolve(input))
 
     maybeCommand match {
       case Some(command) =>
-        command.run(new Output(), new Dialog())
+        command.run(input, new Output(), new Dialog())
       case _ => 1
     }
   }
 
-  def withCommand(command: Command[_]): Application = {
-    copy(input, commands :+ command)
+  def withCommand(command: Command[_, _]): Application = {
+    copy(definition, input, commands :+ command)
   }
 
-  def withCommands(commands: List[Command[_]]): Application = {
-    copy(input, commands ++ commands)
+  def withCommands(commands: List[Command[_, _]]): Application = {
+    copy(definition, input, commands ++ commands)
   }
 }
