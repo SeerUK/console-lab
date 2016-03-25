@@ -9,8 +9,7 @@
  * file that was distributed with this source code.
  */
 
-import seeruk.consolelab.ApplicationModule
-import seeruk.flux.{CounterActions, CounterReducer, CounterState, CounterStore}
+import seeruk.fpinscala.{RNG, SimpleRNG}
 
 /**
  * Main
@@ -18,19 +17,8 @@ import seeruk.flux.{CounterActions, CounterReducer, CounterState, CounterStore}
  * @author Elliot Wright <elliot@elliotwright.co>
  */
 object Main extends App {
-  val reducer = new CounterReducer()
-  val state = new CounterState(0)
-  val store = new CounterStore(List(reducer), state)
+  val initialRng = SimpleRNG(-342)
 
-  store.dispatch(CounterActions.increaseCounter(1))
-  store.dispatch(CounterActions.decreaseCounter(5))
-  store.dispatch(CounterActions.resetCounter())
-  store.dispatch(CounterActions.increaseCounter(23))
-
-  println(store.state.value)
-
-
-//  val appModule = new ApplicationModule(args)
-//
-//  println("Application run finished with status %d".format(appModule.application.run()))
+  println(RNG.ints(5)(initialRng))
+  println(RNG.ints2(5)(initialRng))
 }
