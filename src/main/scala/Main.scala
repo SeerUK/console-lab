@@ -20,5 +20,5 @@ object Main extends App {
   val initialRng = SimpleRNG(-342)
 
   println(RNG.ints(5)(initialRng))
-  println(RNG.ints2(5)(initialRng))
+  println(RNG.intSequence(5)(initialRng))
 }
